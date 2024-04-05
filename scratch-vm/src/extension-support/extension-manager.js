@@ -24,8 +24,13 @@ const builtinExtensions = {
     makeymakey: () => require('../extensions/scratch3_makeymakey'),
     boost: () => require('../extensions/scratch3_boost'),
     gdxfor: () => require('../extensions/scratch3_gdx_for'),
-    tm2scratch: () => require('../extensions/scratch3_tm2scratch')
+    tm2scratch: () => require('../extensions/scratch3_tm2scratch'),
+    
 };
+
+builtinExtensions['physicsengine'] = () => require('../extensions/scratch3_physicsengine');
+
+builtinExtensions['ml2scratch'] = () => require('../extensions/scratch3_ml2scratch');
 
 /**
  * @typedef {object} ArgumentInfo - Information about an extension block argument

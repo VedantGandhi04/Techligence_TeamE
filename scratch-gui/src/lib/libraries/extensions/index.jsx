@@ -49,9 +49,77 @@ import gdxforInsetIconURL from './gdxfor/gdxfor-small.svg';
 import gdxforConnectionIconURL from './gdxfor/gdxfor-illustration.svg';
 import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
+// import tm2scratchIconURL from "./physicsengine/tm2scratch.png";
+// import tm2scratchInsetIconURL from "./physicsengine/tm2scratch-small.png";
+
+import ml2scratchIconURL from "./ml2scratch/ml2scratch.png";
+import ml2scratchInsetIconURL from "./ml2scratch/ml2scratch-small.png";
+
 
 
 export default [
+    {
+        name: "ML2Scratch",
+        extensionId: "ml2scratch",
+        collaborator: "champierre",
+        iconURL: ml2scratchIconURL,
+        insetIconURL: ml2scratchInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="ML2Scratch Blocks."
+                description="ML2Scratch Blocks."
+                id="gui.extension.ml2scratchblocks.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        internetConnectionRequired: true,
+        bluetoothRequired: false,
+    },
+    {
+        name: "Physisc Engine",
+        extensionId: "physicsengine",
+        collaborator: "Tsukurusha, YengawaLab and Google",
+        iconURL: tm2scratchIconURL,
+        insetIconURL: tm2scratchInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="画像や音声を学習させよう。"
+                description="画像や音声を学習させよう。"
+                id="gui.extension.tm2scratchblocks.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        internetConnectionRequired: true,
+        bluetoothRequired: false,
+        translationMap: {
+            ja: {
+                "gui.extension.tm2scratchblocks.description":
+                    "画像や音声を学習させよう。",
+            },
+            "ja-Hira": {
+                "gui.extension.tm2scratchblocks.description":
+                    "がぞうやおんせいをがくしゅうさせよう。",
+            },
+            en: {
+                "gui.extension.tm2scratchblocks.description":
+                    "Recognize your own images and sounds.",
+            },
+            "zh-cn": {
+                "gui.extension.tm2scratchblocks.description":
+                    "Recognize your own images and sounds.",
+            },
+            ko: {
+                "gui.extension.tm2scratchblocks.description":
+                    "나의 이미지와 소리를 인식해볼까요",
+            },
+            "zh-tw": {
+                "gui.extension.tm2scratchblocks.description":
+                    "Recognize your own images and sounds.",
+            },
+        },
+    },
     {
         name: (
             <FormattedMessage

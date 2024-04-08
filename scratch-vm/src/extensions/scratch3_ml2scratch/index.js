@@ -15,7 +15,11 @@ class Scratch3ML2ScratchBlocks {
     this.runtime = runtime;
     this.trainingData=[];
     this.targetData=[];
-    this.model = null;
+    // this.model = null;
+
+    this.model = tf.sequential();
+    this.model.add(tf.layers.dense({ units: 1, inputShape: [3] }));
+    this.model.compile({ loss: "meanSquaredError", optimizer: "sgd" });
   }
 
   getInfo() {
@@ -26,7 +30,7 @@ class Scratch3ML2ScratchBlocks {
         {
           opcode: 'configureModel',
           blockType: BlockType.COMMAND,
-          text: 'Configure model with [NUM_INPUTS] Column 1: [INPUT_NAMES_1] and Column 2: [INPUT_NAMES_2] and Column 3: [INPUT_NAMES_3] and target [TARGET_NAME]',
+          text: 'Configure model with [NUM_INPUTS] Column 1: [INPUT_NAMES_1] and Column 1: [INPUT_NAMES_2] and Column 1: [INPUT_NAMES_3] and target [TARGET_NAME]',
           arguments: {
             NUM_INPUTS: {
               type: ArgumentType.NUMBER,
@@ -153,6 +157,7 @@ class Scratch3ML2ScratchBlocks {
       // dataPoint[this.inputNames[i]] = Cast.toNumber(inputValues[i]);
 
     }
+
     targetPoint.push(targetValue);
     this.trainingData.push(dataPoint);
     this.targetData.push(targetPoint);
@@ -162,51 +167,101 @@ class Scratch3ML2ScratchBlocks {
   
 
   
+  // async trainModel() {
+  //   // Normalize the training data
+  //   const xNormalized = this.normalizeData(this.trainingData);
+  //   const yNormalized = this.normalizeData(this.targetData);
+  
+  //   this.model = tf.sequential();
+  //   this.model.add(tf.layers.dense({ units: 1, inputShape: [3] }));
+  //   this.model.compile({ loss: "meanSquaredError", optimizer: "sgd" });
+  
+  //   await this.model.fit(xNormalized, yNormalized, { epochs: 100 });
+  //   // const predictionTensor = this.model.predict(this.normalizeData([[3, 2, 1]]));
+  //   // const predictedValue = predictionTensor.dataSync()[0];
+  //   console.log(Predicted value: ${56256});
+  //   return "model trained";
+  // }
+
   async trainModel() {
     // Normalize the training data
     const xNormalized = this.normalizeData(this.trainingData);
     const yNormalized = this.normalizeData(this.targetData);
   
-    this.model = tf.sequential();
-    this.model.add(tf.layers.dense({ units: 1, inputShape: [3] }));
-    this.model.compile({ loss: "meanSquaredError", optimizer: "sgd" });
-  
     await this.model.fit(xNormalized, yNormalized, { epochs: 100 });
-    return "model trained";
-}
-
-normalizeData(data) {
+    console.log("Model trained");
+  }
+  
+  normalizeData(data) {
     const mean = tf.mean(data, 0);
     const std = tf.sqrt(tf.moments(data, 0).variance);
     return tf.div(tf.sub(data, mean), std);
-}
+  }
 
-predictTarget(args) {
+  // normalizeData(data) {
+  //   const inputValues = data.map(row => row.slice(0, this.numInputs));
+  // const inputTensor = tf.tensor2d(inputValues);
+
+  // const [mean, variance] = tf.moments(inputTensor, 0);
+  // const std = tf.sqrt(variance);
+
+  // const normalizedInputs = inputValues.map(row => {
+  //   const normalizedRow = row.slice(0, this.numInputs).map((value, index) => {
+  //     return (value - mean.dataSync()[index]) / std.dataSync()[index];
+  //   });
+  //   return normalizedRow;
+  // });
+
+  // return normalizedInputs;
+
+  // }
+
+  // predictTarget(args) {
+  //   const inputValues = [
+  //     Cast.toNumber(args.INPUT_VALUES_1),
+  //     Cast.toNumber(args.INPUT_VALUES_2), 
+  //     Cast.toNumber(args.INPUT_VALUES_3),
+  //   ];
+
+  //   if (inputValues.length !== this.numInputs) {
+  //     throw new Error('Number of input values must match the specified number of inputs');
+  //   }
+
+  //   const x = tf.tensor2d([inputValues]);
+  //   const predictionTensor = this.model.predict(this.normalizeData(x));
+  //   const predictedValue = predictionTensor.dataSync()[0];
+  //   console.log(Predicted value: ${predictedValue});
+    
+
+  //   // Use your machine learning model to predict the target value
+  //   // ...
+
+  //   return predictedValue;
+  // }
+
+  predictTarget(args) {
     const inputValues = [
-        Cast.toNumber(args.INPUT_VALUES_1),
-        Cast.toNumber(args.INPUT_VALUES_2), 
-        Cast.toNumber(args.INPUT_VALUES_3),
+      Cast.toNumber(args.INPUT_VALUES_1),
+      Cast.toNumber(args.INPUT_VALUES_2),
+      Cast.toNumber(args.INPUT_VALUES_3),
     ];
-
+  
     if (inputValues.length !== this.numInputs) {
-        throw new Error('Number of input values must match the specified number of inputs');
+      throw new Error('Number of input values must match the specified number of inputs');
     }
-
-    const x = tf.tensor2d([inputValues]);
-
-    const normalizedInput = this.normalizeData(x);
-    const predictionTensor = this.model.predict(normalizedInput);
+  
+    // const normalizedInput = this.normalizeData([inputValues])[0];
+    const predictionTensor = this.model.predict(tf.tensor2d([inputValues]));
     const predictedValue = predictionTensor.dataSync()[0];
     console.log(`Predicted value: ${predictedValue}`);
-
-    return parseInt(predictedValue);
-}
-
+  
+    return predictedValue;
+  }  
+  
 
   isModelReady() {
-    // Check if your machine learning model is ready to use
-    // ...
-
+    const isReady = this.model !== null;
+    console.log(isReady);
     return isReady;
   }
 

@@ -59,6 +59,24 @@ import ml2scratchInsetIconURL from "./ml2scratch/ml2scratch-small.png";
 
 export default [
     {
+        name: "3D engine",
+        extensionId: "3dscratch",
+        // collaborator: "champierre",
+        iconURL: threedengineIconURL,
+        insetIconURL: threedengineInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="3D Blocks."
+                description="3D Blocks."
+                id="gui.extension.3dengine.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        internetConnectionRequired: true,
+        bluetoothRequired: false,
+    },
+    {
         name: "ML2Scratch",
         extensionId: "ml2scratch",
         collaborator: "champierre",

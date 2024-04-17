@@ -32,6 +32,9 @@ builtinExtensions['physicsengine'] = () => require('../extensions/scratch3_physi
 
 builtinExtensions['ml2scratch'] = () => require('../extensions/scratch3_ml2scratch');
 
+builtinExtensions['3dscratch'] = () => require('../extensions/scratch_3d');
+
+
 /**
  * @typedef {object} ArgumentInfo - Information about an extension block argument
  * @property {ArgumentType} type - the type of value this argument can take

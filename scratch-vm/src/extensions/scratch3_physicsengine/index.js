@@ -1059,8 +1059,7 @@ class Scratch3Physicsengine {
                         description: 'get the y scroll'
                     }),
                     blockType: BlockType.REPORTER
-                }
-,
+                },
                 {
                     opcode: 'whenReceived',
                     text: Message.when_received_block[this.locale],

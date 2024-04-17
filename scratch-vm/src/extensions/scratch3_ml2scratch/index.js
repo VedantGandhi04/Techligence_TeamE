@@ -3,10 +3,23 @@ const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
 const log = require('../../util/log');
+const tf = require('@tensorflow/tfjs');
+// const { SimpleLinearRegression } = require("ml-regression-simple-linear");
+// import MultipleLinearRegression from "multiple-linear-regression";
+// const MultipleLinearRegression = require("multiple-linear-regression");
+
+
 
 class Scratch3ML2ScratchBlocks {
   constructor(runtime) {
     this.runtime = runtime;
+    this.trainingData=[];
+    this.targetData=[];
+    // this.model = null;
+
+    this.model = tf.sequential();
+    this.model.add(tf.layers.dense({ units: 1, inputShape: [3] }));
+    this.model.compile({ loss: "meanSquaredError", optimizer: "sgd" });
   }
 
   getInfo() {
@@ -17,15 +30,23 @@ class Scratch3ML2ScratchBlocks {
         {
           opcode: 'configureModel',
           blockType: BlockType.COMMAND,
-          text: 'Configure model with [NUM_INPUTS] inputs: [INPUT_NAMES] and target [TARGET_NAME]',
+          text: 'Configure model with [NUM_INPUTS] Column 1: [INPUT_NAMES_1] and Column 1: [INPUT_NAMES_2] and Column 1: [INPUT_NAMES_3] and target [TARGET_NAME]',
           arguments: {
             NUM_INPUTS: {
               type: ArgumentType.NUMBER,
               defaultValue: 3
             },
-            INPUT_NAMES: {
+            INPUT_NAMES_1: {
               type: ArgumentType.STRING,
-              defaultValue: 'x, y, z'
+              defaultValue: 'X'
+            },
+            INPUT_NAMES_2: {
+              type: ArgumentType.STRING,
+              defaultValue: 'Y'
+            },
+            INPUT_NAMES_3: {
+              type: ArgumentType.STRING,
+              defaultValue: 'Z'
             },
             TARGET_NAME: {
               type: ArgumentType.STRING,
@@ -36,11 +57,19 @@ class Scratch3ML2ScratchBlocks {
         {
           opcode: 'addTrainingData',
           blockType: BlockType.COMMAND,
-          text: 'add training data [INPUT_VALUES] with target [TARGET_VALUE]',
+          text: 'add training data coulmn1 [INPUT_VALUES_1] and coulmn2 [INPUT_VALUES_2] and coulmn3 [INPUT_VALUES_3] with target [TARGET_VALUE]',
           arguments: {
-            INPUT_VALUES: {
+            INPUT_VALUES_1: {
               type: ArgumentType.STRING,
-              defaultValue: '1, 2, 3'
+              defaultValue: "3"
+            },
+            INPUT_VALUES_2: {
+              type: ArgumentType.STRING,
+              defaultValue: "2"
+            },
+            INPUT_VALUES_3: {
+              type: ArgumentType.STRING,
+              defaultValue: "1"
             },
             TARGET_VALUE: {
               type: ArgumentType.NUMBER,
@@ -56,15 +85,23 @@ class Scratch3ML2ScratchBlocks {
         {
           opcode: 'predictTarget',
           blockType: BlockType.REPORTER,
-          text: 'predict [TARGET_NAME] from [INPUT_VALUES]',
+          text: 'predict [TARGET_NAME] from coulmn1 [INPUT_VALUES_1] and coulmn2 [INPUT_VALUES_2] and coulmn3 [INPUT_VALUES_3]',
           arguments: {
             TARGET_NAME: {
               type: ArgumentType.STRING,
               defaultValue: 'label'
             },
-            INPUT_VALUES: {
+            INPUT_VALUES_1: {
               type: ArgumentType.STRING,
-              defaultValue: '1, 2, 3'
+              defaultValue: "3"
+            },
+            INPUT_VALUES_2: {
+              type: ArgumentType.STRING,
+              defaultValue: "2"
+            },
+            INPUT_VALUES_3: {
+              type: ArgumentType.STRING,
+              defaultValue: "1"
             }
           }
         },
@@ -79,55 +116,152 @@ class Scratch3ML2ScratchBlocks {
 
   configureModel(args) {
     const numInputs = Cast.toNumber(args.NUM_INPUTS);
-    const inputNames = args.INPUT_NAMES.split(',').map(name => name.trim());
     const targetName = args.TARGET_NAME.trim();
+    this.inputNames = [
+      args.INPUT_NAMES_1,
+      args.INPUT_NAMES_2,
+      args.INPUT_NAMES_3
+    ];
 
-    if (numInputs !== inputNames.length) {
+    if (numInputs !== this.inputNames.length) {
       throw new Error('Number of input names must match the specified number of inputs');
     }
 
     this.numInputs = numInputs;
-    this.inputNames = inputNames;
-    this.targetName = targetName;
+    this.inputNames_1 = args.INPUT_NAMES_1;
+    this.inputNames_2 = args.INPUT_NAMES_2;
+    this.inputNames_3 = args.INPUT_NAMES_3;
+    this.targetName = targetName; //
 
     // Update the existing blocks with the new input and target names
     // this.updateBlocks();
   }
 
   addTrainingData(args) {
-    const inputValues = args.INPUT_VALUES.split(',').map(value => value.trim());
+    const inputValues = [
+      args.INPUT_VALUES_1,
+      args.INPUT_VALUES_2, 
+      args.INPUT_VALUES_3,
+    ];
+  
     const targetValue = Cast.toNumber(args.TARGET_VALUE);
-
+  
     if (inputValues.length !== this.numInputs) {
       throw new Error('Number of input values must match the specified number of inputs');
     }
+  
+    let dataPoint = [];
+    let targetPoint = [];
+    for (let i = 0; i < this.numInputs; i++) {
+      dataPoint.push(Cast.toNumber(inputValues[i]));
+      // dataPoint[this.inputNames[i]] = Cast.toNumber(inputValues[i]);
 
-    // Add the training data to your machine learning model
-    // ...
+    }
+
+    targetPoint.push(targetValue);
+    this.trainingData.push(dataPoint);
+    this.targetData.push(targetPoint);
+    // this.trainingData.push(dataPoint);
+    console.log('Training data:', this.trainingData,'Target data:',this.targetData);
+  }
+  
+
+  
+  // async trainModel() {
+  //   // Normalize the training data
+  //   const xNormalized = this.normalizeData(this.trainingData);
+  //   const yNormalized = this.normalizeData(this.targetData);
+  
+  //   this.model = tf.sequential();
+  //   this.model.add(tf.layers.dense({ units: 1, inputShape: [3] }));
+  //   this.model.compile({ loss: "meanSquaredError", optimizer: "sgd" });
+  
+  //   await this.model.fit(xNormalized, yNormalized, { epochs: 100 });
+  //   // const predictionTensor = this.model.predict(this.normalizeData([[3, 2, 1]]));
+  //   // const predictedValue = predictionTensor.dataSync()[0];
+  //   console.log(Predicted value: ${56256});
+  //   return "model trained";
+  // }
+
+  async trainModel() {
+    // Normalize the training data
+    const xNormalized = this.normalizeData(this.trainingData);
+    const yNormalized = this.normalizeData(this.targetData);
+  
+    await this.model.fit(xNormalized, yNormalized, { epochs: 100 });
+    console.log("Model trained");
+  }
+  
+  normalizeData(data) {
+    const mean = tf.mean(data, 0);
+    const std = tf.sqrt(tf.moments(data, 0).variance);
+    return tf.div(tf.sub(data, mean), std);
   }
 
-  trainModel() {
-    // Train your machine learning model
-    // ...
-  }
+  // normalizeData(data) {
+  //   const inputValues = data.map(row => row.slice(0, this.numInputs));
+  // const inputTensor = tf.tensor2d(inputValues);
+
+  // const [mean, variance] = tf.moments(inputTensor, 0);
+  // const std = tf.sqrt(variance);
+
+  // const normalizedInputs = inputValues.map(row => {
+  //   const normalizedRow = row.slice(0, this.numInputs).map((value, index) => {
+  //     return (value - mean.dataSync()[index]) / std.dataSync()[index];
+  //   });
+  //   return normalizedRow;
+  // });
+
+  // return normalizedInputs;
+
+  // }
+
+  // predictTarget(args) {
+  //   const inputValues = [
+  //     Cast.toNumber(args.INPUT_VALUES_1),
+  //     Cast.toNumber(args.INPUT_VALUES_2), 
+  //     Cast.toNumber(args.INPUT_VALUES_3),
+  //   ];
+
+  //   if (inputValues.length !== this.numInputs) {
+  //     throw new Error('Number of input values must match the specified number of inputs');
+  //   }
+
+  //   const x = tf.tensor2d([inputValues]);
+  //   const predictionTensor = this.model.predict(this.normalizeData(x));
+  //   const predictedValue = predictionTensor.dataSync()[0];
+  //   console.log(Predicted value: ${predictedValue});
+    
+
+  //   // Use your machine learning model to predict the target value
+  //   // ...
+
+  //   return predictedValue;
+  // }
 
   predictTarget(args) {
-    const inputValues = args.INPUT_VALUES.split(',').map(value => value.trim());
-
+    const inputValues = [
+      Cast.toNumber(args.INPUT_VALUES_1),
+      Cast.toNumber(args.INPUT_VALUES_2),
+      Cast.toNumber(args.INPUT_VALUES_3),
+    ];
+  
     if (inputValues.length !== this.numInputs) {
       throw new Error('Number of input values must match the specified number of inputs');
     }
-
-    // Use your machine learning model to predict the target value
-    // ...
-
-    return predictedTargetValue;
-  }
+  
+    // const normalizedInput = this.normalizeData([inputValues])[0];
+    const predictionTensor = this.model.predict(tf.tensor2d([inputValues]));
+    const predictedValue = predictionTensor.dataSync()[0];
+    console.log(`Predicted value: ${predictedValue}`);
+  
+    return predictedValue;
+  }  
+  
 
   isModelReady() {
-    // Check if your machine learning model is ready to use
-    // ...
-
+    const isReady = this.model !== null;
+    console.log(isReady);
     return isReady;
   }
 

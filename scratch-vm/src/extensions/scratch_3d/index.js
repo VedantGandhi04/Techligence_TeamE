@@ -1,9 +1,7 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
-const TargetType = require('../../extension-support/target-type');
 const THREE = require('three')
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js');
-const woodurl = require("./images/metal.png")
 
 
 class Scratch3ML2ScratchBlocks {
@@ -14,6 +12,7 @@ class Scratch3ML2ScratchBlocks {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
+    this.renderCanvas = null;
 
     // Initialize objects and lights
     this.objects = [];
@@ -25,6 +24,12 @@ class Scratch3ML2ScratchBlocks {
 
     // Add DirectionalLight
     this.directionalLight = null;
+
+    // to show direction on renderrer
+    this.axisHelper = null;
+    this.axisShown = false;
+    this.worldCoordinatesHelper = null;
+    this.worldCoordinatesScene = null;
 
     // Bind methods to ensure proper 'this' context
     this.createCanvas = this.createCanvas.bind(this);
@@ -39,6 +44,8 @@ class Scratch3ML2ScratchBlocks {
     this.addPointLight = this.addPointLight.bind(this);
     this.applyTexture = this.applyTexture.bind(this);
     this.forever = this.forever.bind(this);
+    this.hideAxis = this.hideAxis.bind(this);
+    this.showAxis = this.showAxis.bind(this);
     // this.renderScene = this.renderScene.bind(this);
 
     // Initialize OrbitControls
@@ -80,6 +87,18 @@ class Scratch3ML2ScratchBlocks {
                     defaultValue: '#FFFFFF'
                 },
 
+            }
+        },
+        {
+            opcode: 'toggleDirections',
+            blockType: BlockType.COMMAND,
+            text: 'Show directions? [SHOW_DIRECTIONS]',
+            arguments: {
+                SHOW_DIRECTIONS: {
+                    type: ArgumentType.STRING,
+                    menu: 'yesNo',
+                    defaultValue: 'yes'
+                }
             }
         },
         {
@@ -368,7 +387,20 @@ class Scratch3ML2ScratchBlocks {
         },
     ],
         menus: {
-            motionTypes: {
+            yesNo: {
+                acceptReporters: true,
+                items: [
+                    {
+                        text: 'Yes',
+                        value: 'yes'
+                    },
+                    {
+                        text: 'No',
+                        value: 'no'
+                    }
+                ]
+            }
+            ,motionTypes: {
                 acceptReporters: true,
                 items: [
                     {
@@ -437,6 +469,26 @@ class Scratch3ML2ScratchBlocks {
                                 {
                                 text: 'Wood',
                                 value: 'Wood'
+                            },
+                            {
+                                text: 'Metal',
+                                value: 'Metal'
+                            },
+                            {
+                                text: 'Brick',
+                                value: 'Brick'
+                            },
+                            {
+                                text: 'Grass',
+                                value: 'Grass'
+                            },
+                            {
+                                text: 'Marble',
+                                value: 'Marble'
+                            },
+                            {
+                                text: 'Rock',
+                                value: 'Rock'
                             }
                             ]
                     }
@@ -448,6 +500,46 @@ class Scratch3ML2ScratchBlocks {
         
         return this.objectslist;
     }
+
+    toggleDirections(args) {
+        const { SHOW_DIRECTIONS } = args;
+    
+        if (SHOW_DIRECTIONS === 'yes') {
+            if (this.axisShown ==false) {
+                this.showAxis();
+                this.axisShown = true;
+            }
+        } else {
+            if (this.axisShown) {
+                this.hideAxis();
+                this.axisShown = false;
+            }
+        }
+    }
+
+    hideAxis() {
+        if (this.axisShown) {
+            this.scene.remove(this.worldCoordinatesHelper);
+            this.worldCoordinatesHelper = null;
+            this.axisShown=false;
+        }
+    }
+
+    showAxis() {
+        
+        const axesSize = 10; // Adjust the size of the axes as needed
+        this.worldCoordinatesHelper = new THREE.AxesHelper(axesSize);
+
+        this.worldCoordinatesHelper.position.set(0, 0, 0); // Set the position of the AxesHelper
+        this.scene.add(this.worldCoordinatesHelper);
+
+        // Update the render loop to render the main scene with the AxesHelper
+        this.renderer.setAnimationLoop(() => {
+        this.renderer.render(this.scene, this.camera);
+        });
+    }
+
+    
 
     setSpeed(args) {
         const { MOTION_TYPE, VALUE , OBJECT, AXIS} = args;
@@ -527,18 +619,30 @@ class Scratch3ML2ScratchBlocks {
         }
     }
     intialize(){
+        
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
         this.camera.position.set(0,0,5);
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(480, 360);
-        document.body.appendChild(this.renderer.domElement);
+        this.renderer = new THREE.WebGLRenderer({ canvas: canvas });
+        this.renderer.setSize(40, 30);
+        canvas.appendChild(this.renderer.domElement);
+        canvasContainer.appendChild(canvas);
+
+        
+        element.style.position = "fixed";
+// Set top, left, right, or bottom as per your requirement
+        element.style.top = "92.5px";
+        element.style.right = "9px";
+        this.element1.appendChild(element);
+        
         this.objects = [];
         this.lights = [];
         this.objectslist=[{text: 'any', value: "any"}];
         // Add AmbientLight
-        this.ambientLight = new THREE.AmbientLight(0x404040,40);
+        this.ambientLight = new THREE.AmbientLight(0x404040,10);
         this.scene.add(this.ambientLight);
+
+        
 
         // Add DirectionalLight
         // this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -548,6 +652,7 @@ class Scratch3ML2ScratchBlocks {
         this.controls.enableDamping = true; // For smooth camera movement
         this.controls.dampingFactor = 0.25;
         this.controls.rotateSpeed = 0.35; // Adjust the rotation speed as needed
+        
         const animate = () => {
             requestAnimationFrame(animate);
             this.renderer.render(this.scene, this.camera);
@@ -661,8 +766,14 @@ class Scratch3ML2ScratchBlocks {
 
     // Define a mapping between texture names and texture file paths
     const textureMap = {
-        'Wood': 'https://global.discourse-cdn.com/standard17/uploads/threejs/optimized/2X/8/8079529706d44d8af139269d59439bdbe3d3adad_2_500x500.jpeg',
-        'Metal': 'https://static.vecteezy.com/system/resources/thumbnails/007/408/014/small/stylish-panoramic-background-silver-steel-metal-texture-vector.jpg',
+        'Wood': 'https://www.textures.com/system/gallery/photos/3D%20Scans/ps142928/142928_header_small.jpg',
+        'Metal': 'https://www.textures.com/system/gallery/photos/PBR%20Materials/ps143657/143657_header_small.jpg',
+        'Brick': 'https://www.textures.com/system/gallery/photos/3D%20Scans/ps141077/141077_header_small.jpg',
+        'Grass': 'https://www.textures.com/system/gallery/photos/3D%20Scans/ps143119/143119_header_small.jpg',
+        'Marble': 'https://www.textures.com/system/gallery/photos/PBR%20Materials/ps141937/141937_header_small.jpg',
+        'Rock': 'https://www.textures.com/system/gallery/photos/3D%20Scans/ps138052/138052_header_small.jpg',
+        
+
         // Add more texture mappings as needed
     };
 

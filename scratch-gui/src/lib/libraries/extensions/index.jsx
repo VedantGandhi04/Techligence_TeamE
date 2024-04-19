@@ -49,8 +49,8 @@ import gdxforConnectionSmallIconURL from "./gdxfor/gdxfor-small.svg";
 import tm2scratchIconURL from "./physicsengine/tm2scratch.png";
 import tm2scratchInsetIconURL from "./physicsengine/tm2scratch-small.png";
 
-import ml2scratchIconURL from "./ml2scratch/ml2scratch.png";
-import ml2scratchInsetIconURL from "./ml2scratch/ml2scratch-small.png";
+import regressionengineIconURL from "./regressionengine/regressionengine.png";
+import regressionengineInsetIconURL from "./regressionengine/regressionengine-small.png";
 
 import threedengineIconURL from "./3dengine/3dengine.png";
 import threedengineInsetIconURL from "./3dengine/3dengine_small.png";
@@ -60,7 +60,6 @@ export default [
     {
         name: "3D engine",
         extensionId: "3dscratch",
-        // collaborator: "champierre",
         iconURL: threedengineIconURL,
         insetIconURL: threedengineInsetIconURL,
         description: (
@@ -77,10 +76,9 @@ export default [
     },
     {
         name: "Regression Engine",
-        extensionId: "ml2scratch",
-        // collaborator: "champierre",
-        iconURL: ml2scratchIconURL,
-        insetIconURL: ml2scratchInsetIconURL,
+        extensionId: "regressionengine",
+        iconURL: regressionengineIconURL,
+        insetIconURL: regressionengineInsetIconURL,
         description: (
             <FormattedMessage
                 defaultMessage="Regression Blocks."

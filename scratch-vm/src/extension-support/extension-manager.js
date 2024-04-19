@@ -60,7 +60,7 @@ const builtinExtensions = {
 
 builtinExtensions['physicsengine'] = () => require('../extensions/scratch3_physicsengine');
 
-builtinExtensions['ml2scratch'] = () => require('../extensions/scratch3_ml2scratch');
+builtinExtensions['regressionengine'] = () => require('../extensions/scratch3_regressionengine');
 
 builtinExtensions['3dscratch'] = () => require('../extensions/scratch_3d');
 

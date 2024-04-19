@@ -34,6 +34,8 @@ const StageComponent = props => {
 
     const stageDimensions = getStageDimensions(stageSize, isFullScreen);
 
+
+
     return (
         <React.Fragment>
             <Box
@@ -110,12 +112,32 @@ const StageComponent = props => {
                             </div>
                         )}
                     </div>
+                    <div
+                        id="3dcanvas"
+                        className={styles.draggingSprite}
+                        height={0}
+                        width={0}
+
+
+
+                    />
+                    {console.log(dragRef)}
+                    <canvas
+                        id="2dcanvas"
+                        className={styles.draggingSprite}
+                        height={stageDimensions.height}
+                        // ref={dragRef}
+                        width={stageDimensions.width}
+                    />
                     <canvas
                         className={styles.draggingSprite}
                         height={0}
                         ref={dragRef}
                         width={0}
                     />
+                
+
+
                 </Box>
                 {isStarted ? null : (
                     <GreenFlagOverlay
